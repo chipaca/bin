@@ -1,0 +1,2 @@
+#!/bin/bash
+echo -n "${1:-beuno}: ";(echo -n g; eval printf "o%.0s" {2..$((RANDOM/512))}; echo 'd morning!') | toilet --irc --gay --width 150 --font wideterm

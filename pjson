@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# adding less at the end does nothing if not a tty :)
+python3 -m json.tool "$@" | pygmentize -l json | less -RSNFX

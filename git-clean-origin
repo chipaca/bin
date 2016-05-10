@@ -1,0 +1,31 @@
+#!/bin/bash
+set -e
+
+if ! git rev-parse --is-inside-work-tree &>/dev/null; then
+  echo "Not a git repository."
+  exit 1
+fi
+
+if [ "$1" = "-h" ]; then
+    cat <<EOF
+usage: git clean-origin
+deletes any branches at origin that have been merged with origin/master
+EOF
+    exit 0
+fi
+
+git fetch -p origin
+git branch --remotes --merged origin/master |
+    perl -wne 's|^\s*origin/|| && !/^master$|>/ && print' |
+    xargs --no-run-if-empty git push origin --delete
+git branch --merged origin/master |
+    grep -Ev '^\*|^ *master$' |
+    xargs --no-run-if-empty git branch -d
+
+git branch --remotes --merged origin/15.04 |
+    perl -wne 's|^\s*origin/|| && !/^15.04$|>/ && print' |
+    xargs --no-run-if-empty git push origin --delete
+git branch --merged origin/15.04 |
+    grep -Ev '^\*|^ *15.04$' |
+    xargs --no-run-if-empty git branch -d
+

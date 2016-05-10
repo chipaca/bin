@@ -1,0 +1,25 @@
+#!/bin/sh
+
+include_l=1
+include_n=1
+args="-v"
+while getopts ":l:n:" o; do
+    case "$o" in
+        l)
+            include_l=0
+            ;;
+        n)
+            include_n=0
+            ;;
+    esac
+done
+if [ $include_l -eq 1 ]; then
+    args="$args -l0"
+fi
+if [ $include_n -eq 1 ]; then
+    args="$args -n0"
+fi
+
+args="$args $*"
+
+bzr log $args | less -RiS

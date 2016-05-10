@@ -1,0 +1,88 @@
+#!/usr/bin/python3
+# -*- python -*-
+import os
+import pathlib
+import re
+import random
+import subprocess
+import sys
+import datetime
+from urllib.parse import quote
+from lxml import etree
+
+img_rx = re.compile(r"\.(?:jpe?g|png)$", re.I)
+outfn = "/home/john/Pictures/backgrounds.xml"
+folder = "/home/john/Pictures/backgrounds"
+
+
+def walk(d):
+    """Like os.walk, but dumber."""
+    for i in d.iterdir():
+        if i.is_dir():
+            yield from walk(i)
+        elif img_rx.match(i.suffix):
+            yield i
+
+
+if len(sys.argv) > 1:
+    imgs = sys.argv[1:]
+    random.shuffle(imgs)
+else:
+    imgs = list(walk(pathlib.Path(folder)))
+    imgs.sort(key=lambda x: x.stat().st_ctime)
+    last = imgs.pop()
+    random.shuffle(imgs)
+    imgs.append(last)
+    imgs = list(map(str, imgs))
+
+root = etree.Element("background")
+startime = etree.XML(datetime.datetime.utcnow().strftime("""
+  <starttime>
+    <year>%Y</year>
+    <month>%m</month>
+    <day>%d</day>
+    <hour>%H</hour>
+    <minute>%M</minute>
+    <second>%S</second>
+  </starttime>
+"""))
+
+root.append(startime)
+
+prev = imgs[-1]
+for img in imgs:
+    static = etree.Element("static")
+    duration = etree.Element("duration")
+    duration.text = "1770.0"
+    static.append(duration)
+
+    file = etree.Element("file")
+    file.text = prev
+    static.append(file)
+
+    trans = etree.Element("transition")
+    duration = etree.Element("duration")
+    duration.text = "30.0"
+    trans.append(duration)
+
+    f = etree.Element("from")
+    t = etree.Element("to")
+    f.text = prev
+    t.text = img
+    trans.append(f)
+    trans.append(t)
+
+    root.append(static)
+    root.append(trans)
+
+    prev = img
+
+tmpf = open(outfn + ".tmp", "w")
+print(etree.tostring(root, pretty_print=True).decode("utf-8"), end=None,
+      file=tmpf)
+tmpf.flush()
+os.fsync(tmpf.fileno())
+os.replace(tmpf.name, outfn)
+
+subprocess.check_call(["gsettings", "set", "org.gnome.desktop.background",
+                       "picture-uri", "file://" + quote(outfn)])

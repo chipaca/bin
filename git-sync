@@ -1,0 +1,42 @@
+#!/bin/bash
+
+set -e
+
+if ! git rev-parse --is-inside-work-tree &>/dev/null; then
+  echo "Not a git repository."
+  exit 1
+fi
+
+if [ "$1" = "-h" ]; then
+    cat <<EOF
+usage: git sync [-n] [BRANCH [UPSTREAM [TARGET]]]
+
+switch to BRANCH, fetch from UPSTREAM, merge it to UPSTREAM/BRANCH,
+push it to TARGET, switch back to the current branch (unless -n is given).
+
+BRANCH defaults to "master", UPSTREAM to "upstream", and TARGET to "origin".
+EOF
+    exit 0
+fi
+
+n=""
+if [ "$1" = "-n" ]; then
+    n=1
+    shift
+fi
+
+b="${1:-master}"
+r="${2:-upstream}"
+p="${3:-origin}"
+
+cb="$(git rev-parse --abbrev-ref HEAD)"
+
+if [ "$cb" != "$b" ]; then
+    git checkout "$b"
+fi
+
+git fetch "$r" && git merge "$r"/"$b" && git push "$p"
+
+if [ -z "$n" -a "$cb" != "$b" ]; then
+    git checkout "$cb"
+fi

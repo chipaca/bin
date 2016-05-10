@@ -1,0 +1,39 @@
+#!/bin/sh
+set -eu
+
+SROOT=$HOME/src/solarized
+
+mode="${1:-$(basename "$0")}"
+
+case $mode in
+    dark)
+        theme=Ambiance
+        ;;
+    light)
+        theme=Radiance
+        ;;
+esac
+if [ -z "$theme" ]; then
+    echo "panic: mode must be either 'light' or 'dark'"
+    exit 1
+fi
+
+
+
+# emacs; needs emacs-goodies-el and emacs bits installed from
+# https://github.com/sellout/emacs-color-theme-solarized
+emacsclient --alternate-editor /bin/true -e "(color-theme-solarized '$mode)"
+sed -r -i -e "/@@@THEME@@@/s/light|dark/$mode/" ~/.emacs
+# xchat bits from https://github.com/jtmohr/xchat-colors-solarized
+if [ -f ~/.xchat2/colors.conf ]; then
+    cp "$SROOT/xchat-colors-solarized/solarized-${mode}-colors.conf" ~/.xchat2/colors.conf
+fi
+if [ -d ~/.config/hexchat ]; then
+    unzip -oq "$SROOT/hexchat/solarized-${mode}.hct" -d ~/.config/hexchat
+fi
+# gnome-terminal bits from https://github.com/sigurdga/gnome-terminal-colors-solarized
+"$SROOT/gnome-terminal-colors-solarized/install.sh" -s "${mode}" -p Default
+
+gsettings set org.gnome.desktop.wm.preferences theme "$theme"
+gsettings set org.gnome.desktop.interface gtk-theme "$theme"
+gsettings set org.gnome.desktop.interface icon-theme "ubuntu-mono-$mode"

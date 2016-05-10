@@ -1,0 +1,51 @@
+#!/usr/bin/python3
+
+import re
+import sys
+
+GREEN = '\033[38;5;34m'
+RED = '\033[38;5;196m'
+GREY = '\033[38;5;241m'
+ENDC = '\033[0m'
+
+print(GREY + "paste away" + ENDC)
+
+got = {}
+rx = re.compile(r"^\.?\.\. (obtained|expected) .*?map\[\w+\](?:\w+|interface {})({.*})$")
+for line in sys.stdin:
+    m = rx.match(line)
+    if m is not None:
+        k=m.group(1)
+        s=m.group(2)
+        d=eval(s)
+        got[k] = d
+
+if len(got) != 2:
+    sys.exit(1)
+
+expected=got["expected"]
+obtained=got["obtained"]
+
+kmis = expected.keys() - obtained.keys()
+kadd = obtained.keys() - expected.keys()
+
+if kmis-kadd:
+    print(GREY + "missing keys:" + ENDC)
+    for k in kmis-kadd:
+        print("    %r: %s%r%s" % (k, RED, expected[k], ENDC))
+
+if kadd-kmis:
+    print(GREY + "extra keys:" + ENDC)
+    for k in kadd-kmis:
+        print("    %r: %s%r%s" % (k, GREEN, obtained[k], ENDC))
+
+diff = []
+for k, v in expected.items():
+    if k in obtained and v != obtained[k]:
+        diff.append((k, v, obtained[k]))
+
+if diff:
+    print(GREY + "differing keys:" + ENDC)
+    for k, vexp, vobt in diff:
+        print("    %r:  expected %s%r%s, got %s%r%s"
+              % (k, RED, vexp, ENDC, GREEN, vobt, ENDC))

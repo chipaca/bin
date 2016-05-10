@@ -1,0 +1,5 @@
+#!/bin/sh
+# bzr diff --using diff --diff-options="-uw" "$@" | pygmentize -l diff -f terminal -O bg=dark | less -NRiS
+# bzr cdiff --color=always "$@" | less -NRiS
+
+bzr cdiff --color=always --using diff --diff-options="-ub" "$@" | less -NRiS
