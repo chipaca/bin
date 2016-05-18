@@ -39,4 +39,9 @@ git fetch "$r" && git merge "$r"/"$b" && git push "$p"
 
 if [ -z "$n" -a "$cb" != "$b" ]; then
     git checkout "$cb"
+
+    read -e -n 1 -p "rebase? [y/N] "
+    if [ "$REPLY" = "y" -o "$REPLY" = "Y" ]; then
+        git rebase "$b"
+    fi
 fi
