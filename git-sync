@@ -9,7 +9,7 @@ fi
 
 if [ "$1" = "-h" ]; then
     cat <<EOF
-usage: git sync [-n] [BRANCH [UPSTREAM [TARGET]]]
+usage: git-sync [-n] [BRANCH [UPSTREAM [TARGET]]]
 
 switch to BRANCH, fetch from UPSTREAM, merge it to UPSTREAM/BRANCH,
 push it to TARGET, switch back to the current branch (unless -n is given).
