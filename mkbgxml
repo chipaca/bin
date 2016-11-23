@@ -28,6 +28,7 @@ if len(sys.argv) > 1:
     imgs = sys.argv[1:]
     random.shuffle(imgs)
 else:
+    # imgs = [str(i) for i in walk(pathlib.Path(folder))]
     imgs = list(walk(pathlib.Path(folder)))
     imgs.sort(key=lambda x: x.stat().st_ctime)
     last = imgs.pop()

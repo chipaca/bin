@@ -22,7 +22,10 @@ fi
 
 # emacs; needs emacs-goodies-el and emacs bits installed from
 # https://github.com/sellout/emacs-color-theme-solarized
-emacsclient --alternate-editor /bin/true -e "(color-theme-solarized '$mode)"
+emacsclient --alternate-editor /bin/true -e \
+            "(load-theme 'solarized-$mode)" \
+            "(setq frame-background-mode '$mode)" \
+            "(mapc 'frame-set-background-mode (frame-list))"
 sed -r -i -e "/@@@THEME@@@/s/light|dark/$mode/" ~/.emacs
 # xchat bits from https://github.com/jtmohr/xchat-colors-solarized
 if [ -f ~/.xchat2/colors.conf ]; then
@@ -32,7 +35,7 @@ if [ -d ~/.config/hexchat ]; then
     unzip -oq "$SROOT/hexchat/solarized-${mode}.hct" -d ~/.config/hexchat
 fi
 # gnome-terminal bits from https://github.com/sigurdga/gnome-terminal-colors-solarized
-"$SROOT/gnome-terminal-colors-solarized/install.sh" -s "${mode}" -p Default
+"$SROOT/gnome-terminal-colors-solarized/install.sh" -s "${mode}" -p Default --skip-dircolors
 
 gsettings set org.gnome.desktop.wm.preferences theme "$theme"
 gsettings set org.gnome.desktop.interface gtk-theme "$theme"
