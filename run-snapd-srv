@@ -19,18 +19,9 @@ if systemctl is-active --quiet snapd.service snapd.socket; then
     exit 1
 fi
 
-while true; do
-    (
-        set +e
-        for i in `seq 10`; do
-            sleep .1
-            curl -s --unix-socket /run/snapd.socket 'http:?POKE' > /dev/null && break
-            false
-        done && chmod -c 0666 /run/snapd.socket
-    ) &
-
-    /lib/systemd/systemd-activate -E SNAPD_DEBUG_HTTP=${SNAPD_DEBUG_HTTP:-3} -E SNAPD_DEBUG=${SNAPD_DEBUG:-1} -l /run/snapd.socket "$srv"
-
-    wait
-done
-
+exec sudo \
+     SNAPD_DEBUG=${SNAPD_DEBUG:-1} \
+     SNAPD_DEBUG_HTTP=${SNAPD_DEBUG_HTTP:-3} \
+     SNAPPY_SQUASHFS_UNPACK_FOR_TESTS=${SNAPPY_SQUASHFS_UNPACK_FOR_TESTS:-0} \
+     SNAPPY_TESTING=${SNAPPY_TESTING:-1} \
+     "$srv"
