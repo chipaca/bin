@@ -1,0 +1,67 @@
+#!/usr/bin/python3
+
+import unicodedata
+import re
+import sys
+import random
+
+kinds = [
+    "BOLD", "ITALIC", "BOLD ITALIC",
+    "SCRIPT", "BOLD SCRIPT",
+    "FRAKTUR", "BOLD FRAKTUR",
+    "DOUBLE-STRUCK",
+    "SANS-SERIF", "SANS-SERIF BOLD", "SANS-SERIF ITALIC", "SANS-SERIF BOLD ITALIC",
+    "MONOSPACE",
+    ]
+
+exceptions = {
+    "MATHEMATICAL SCRIPT SMALL E": "SCRIPT SMALL E",
+    "MATHEMATICAL SCRIPT SMALL O": "SCRIPT SMALL O",
+    "MATHEMATICAL SCRIPT SMALL G": "SCRIPT SMALL G",
+    "MATHEMATICAL SCRIPT CAPITAL B": "SCRIPT CAPITAL B",
+    "MATHEMATICAL SCRIPT CAPITAL E": "SCRIPT CAPITAL E",
+    "MATHEMATICAL SCRIPT CAPITAL F": "SCRIPT CAPITAL F",
+    "MATHEMATICAL SCRIPT CAPITAL H": "SCRIPT CAPITAL H",
+    "MATHEMATICAL SCRIPT CAPITAL I": "SCRIPT CAPITAL I",
+    "MATHEMATICAL SCRIPT CAPITAL L": "SCRIPT CAPITAL L",
+    "MATHEMATICAL SCRIPT CAPITAL M": "SCRIPT CAPITAL M",
+    "MATHEMATICAL SCRIPT CAPITAL R": "SCRIPT CAPITAL R",
+
+    "MATHEMATICAL FRAKTUR CAPITAL C": "BLACK-LETTER CAPITAL C",
+    "MATHEMATICAL FRAKTUR CAPITAL H": "BLACK-LETTER CAPITAL H",
+    "MATHEMATICAL FRAKTUR CAPITAL I": "BLACK-LETTER CAPITAL I",
+    "MATHEMATICAL FRAKTUR CAPITAL R": "BLACK-LETTER CAPITAL R",
+    "MATHEMATICAL FRAKTUR CAPITAL Z": "BLACK-LETTER CAPITAL Z",
+
+    "MATHEMATICAL DOUBLE-STRUCK CAPITAL C": "DOUBLE-STRUCK CAPITAL C",
+    "MATHEMATICAL DOUBLE-STRUCK CAPITAL H": "DOUBLE-STRUCK CAPITAL H",
+    "MATHEMATICAL DOUBLE-STRUCK CAPITAL N": "DOUBLE-STRUCK CAPITAL N",
+    "MATHEMATICAL DOUBLE-STRUCK CAPITAL P": "DOUBLE-STRUCK CAPITAL P",
+    "MATHEMATICAL DOUBLE-STRUCK CAPITAL Q": "DOUBLE-STRUCK CAPITAL Q",
+    "MATHEMATICAL DOUBLE-STRUCK CAPITAL R": "DOUBLE-STRUCK CAPITAL R",
+    "MATHEMATICAL DOUBLE-STRUCK CAPITAL Z": "DOUBLE-STRUCK CAPITAL Z",
+
+    "MATHEMATICAL ITALIC SMALL H": "PLANCK CONSTANT",
+    }
+
+args = sys.argv[1:]
+if not args:
+    print("reading from stdin")
+    args = sys.stdin
+
+rx = re.compile(r"^LATIN (\S+) LETTER (\S+)$")
+
+for arg in args:
+        kind = random.choice(kinds)
+        s=[]
+        for l in arg:
+            try:
+                name = unicodedata.name(l)
+            except ValueError:
+                s.append(l)
+            else:
+                name = rx.sub(r"MATHEMATICAL %s \1 \2" % (kind,), name)
+                if name in exceptions:
+                    name = exceptions[name]
+                s.append(unicodedata.lookup(name))
+        print("".join(s))
