@@ -1,6 +1,6 @@
 #!/bin/sh
 set -eu
 
-git status --short --branch
-git diff --shortstat
+git status --short --branch "$@"
+git diff --shortstat "$@"
 

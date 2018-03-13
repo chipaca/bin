@@ -28,13 +28,14 @@ if len(sys.argv) > 1:
     imgs = sys.argv[1:]
     random.shuffle(imgs)
 else:
-    # imgs = [str(i) for i in walk(pathlib.Path(folder))]
-    imgs = list(walk(pathlib.Path(folder)))
-    imgs.sort(key=lambda x: x.stat().st_ctime)
-    last = imgs.pop()
-    random.shuffle(imgs)
-    imgs.append(last)
-    imgs = list(map(str, imgs))
+    # # imgs = [str(i) for i in walk(pathlib.Path(folder))]
+    # imgs = list(walk(pathlib.Path(folder)))
+    # imgs.sort(key=lambda x: x.stat().st_ctime)
+    # last = imgs.pop()
+    # random.shuffle(imgs)
+    # imgs.append(last)
+    # imgs = list(map(str, imgs))
+    imgs = list(map(str, walk(pathlib.Path(folder))))
 
 root = etree.Element("background")
 startime = etree.XML(datetime.datetime.utcnow().strftime("""

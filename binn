@@ -1,13 +1,18 @@
-#!/bin/bash
-#
-# binn  input_filename  output_filename  binning_factor
-#
-# Take a photo and shrink it by the binning_factor to improve
-# signal to noise ratio.  Binning factor must be a whole number,
-# and input image may be cropped slightly to ensure its size is a
-# whole number of 'bins'.
-#
-# Original Script by Walter Dnes <waltdnes@waltdnes.org>
+#!/bin/bash -e
+
+if [ $# -lt 3 ]; then
+    cat >&2 <<EOF
+$(basename $0) <input> <output> <factor>
+
+ Take a photo and shrink it by the binning_factor to improve
+ signal to noise ratio.  Binning factor must be a whole number,
+ and input image may be cropped slightly to ensure its size is a
+ whole number of 'bins'.
+
+ Original Script by Walter Dnes <waltdnes@waltdnes.org>
+EOF
+    exit 1
+fi
 
 source_file=${1}
 output_file=${2}
@@ -32,7 +37,7 @@ if [ "$crop_flag" ]; then
   crop_args="-crop ${checkx}x${checky}+0+0 +repage"
 fi
 
-echo convert "${source_file}" $crop_args \
+convert "${source_file}" $crop_args \
         -filter box -resize "${newx}x${newy}" \
         "${output_file}"
 

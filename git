@@ -1,0 +1,20 @@
+#!/bin/sh
+
+if [ "$1" = "push" ]; then
+    for arg in "$@"; do
+        shift
+        case "$arg" in
+            "-f"|"--force")
+                echo "\033[2m* rewriting --force as --force-with-lease\033[0m" >&2
+                arg="--force-with-lease"
+                ;;
+            "--really-force")
+                echo "\033[2m* rewriting --really-force as --force\033[0m" >&2
+                arg="--force"
+                ;;
+        esac
+        set -- "$@" "$arg"
+    done
+fi
+
+exec /usr/bin/git "$@"
