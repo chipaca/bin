@@ -23,13 +23,22 @@ if [ "${2:-}" ]; then
     export SNAPPY_FORCE_CPI_URL="$2"
 fi
 
-d=/usr/lib/snapd/snapd
-if [ ! -e "${d}.real" ]; then
-    mv -v "$d" "${d}.real"
-    trap exit INT
-    trap 'mv -v "${d}.real" "$d"; exit' EXIT
+if [ ! -d /usr/lib/snapd ]; then
+    mkdir -v /usr/lib/snapd
 fi
-cp -v "$srv" "$d"
+
+d=/usr/lib/snapd/snapd
+if [ "$srv" != "$d" ]; then
+    if [ ! -e "$d" ]; then
+        trap exit INT
+        trap 'rm -v "$d"' EXIT
+    elif [ ! -e "${d}.real" ]; then
+        mv -v "$d" "${d}.real"
+        trap exit INT
+        trap 'mv -v "${d}.real" "$d"; exit' EXIT
+    fi
+    cp -v "$srv" "$d"
+fi
 
 export SNAP_REEXEC=0
 export SNAPD_DEBUG="${SNAPD_DEBUG:-1}"
@@ -38,6 +47,6 @@ export SNAPPY_SQUASHFS_UNPACK_FOR_TESTS="${SNAPPY_SQUASHFS_UNPACK_FOR_TESTS:-0}"
 export SNAPPY_TESTING="${SNAPPY_TESTING:-1}"
 export SNAP_CONFINE_DEBUG="${SNAP_CONFINE_DEBUG:-1}"
 
-while /usr/lib/snapd/snapd; do
+while "$d"; do
     sleep 1 || break
 done
